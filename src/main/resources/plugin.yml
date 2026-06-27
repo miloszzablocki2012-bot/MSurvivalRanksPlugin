@@ -19,5 +19,7 @@ permissions:
   msurvivalranks.admin:
     description: Dostęp do zarządzania rangami
     default: op
-
+    setranktemp:
+    description: Ustawia range czasowa
+    usage: /setranktemp <gracz> <ranga> <czas>
 
