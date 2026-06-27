@@ -4,10 +4,13 @@ chat:
   enabled: true
   format: "%prefix% &7%player% &8» &f%message%"
 
-actionbar:
+bossbar:
   enabled: true
   refresh-ticks: 20
-  format: "&8┃ &6✦ &7Gracz: &f%player% &8┃ &6✦ &7Ranga: %display% &8┃"
+  color: PURPLE
+  style: SOLID
+  progress: 1.0
+  title: "&6👤 &f%player% &8| &c👑 &f%display%"
 
 tablist:
   enabled: true
