@@ -32,8 +32,8 @@ sidebar:
 
 ranks:
   gracz:
-    display: "&7&lGRACZ"
-    prefix: "&8[&7&lGRACZ&8]"
+    display: "&a&lGRACZ"
+    prefix: "&8[&a&lGRACZ&8]"
 
   vip:
     display: "&b&lVIP"
