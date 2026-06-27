@@ -1,1 +1,23 @@
-# Wklej tutaj plugin.yml
+name: MSurvivalRanks
+version: 1.0
+main: pl.msurvival.ranks.MSurvivalRanks
+api-version: '1.21'
+author: Milekz
+
+commands:
+  setrank:
+    description: Ustawia rangę gracza
+    usage: /setrank <gracz> <ranga>
+  rank:
+    description: Pokazuje twoją rangę
+    usage: /rank
+  ranksreload:
+    description: Przeładowuje konfigurację rang
+    usage: /ranksreload
+
+permissions:
+  msurvivalranks.admin:
+    description: Dostęp do zarządzania rangami
+    default: op
+
+
