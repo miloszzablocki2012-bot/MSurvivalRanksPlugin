@@ -1,11 +1,7 @@
 package pl.msurvival.ranks;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,21 +12,22 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
     private File playersFile;
     private FileConfiguration players;
-    private final Map<UUID, BossBar> bossBars = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -39,17 +36,16 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
         Bukkit.getPluginManager().registerEvents(this, this);
         registerCommands();
-        startBossBarTask();
+        startSidebarTask();
 
         getLogger().info("MSurvivalRanks wlaczony!");
     }
 
     @Override
     public void onDisable() {
-        for (BossBar bar : bossBars.values()) {
-            bar.removeAll();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         }
-        bossBars.clear();
     }
 
     private void registerCommands() {
@@ -82,7 +78,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
                 setRank(target.getName(), rank);
                 updatePlayerVisuals(target);
-                updateBossBar(target);
+                updateSidebar(target);
 
                 String msg = getConfig().getString("messages.rank-set", "&aUstawiono rangę %display% &adla gracza &e%player%&a.");
                 sender.sendMessage(color(applyPlaceholders(msg, target, rank)));
@@ -104,10 +100,9 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                 Player player = (Player) sender;
                 String rank = getRank(player.getName());
 
-                String msg = getConfig().getString("messages.your-rank", "&8┃ &7Gracz: &f%player% &8┃ &7Ranga: %display% &8┃");
+                String msg = getConfig().getString("messages.your-rank", "&7Twoja ranga: %display%");
                 player.sendMessage(color(applyPlaceholders(msg, player, rank)));
-                updateBossBar(player);
-
+                updateSidebar(player);
                 return true;
             });
         }
@@ -126,9 +121,8 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                     if (!players.contains("players." + normalize(player.getName()))) {
                         setRank(player.getName(), getDefaultRank());
                     }
-
                     updatePlayerVisuals(player);
-                    updateBossBar(player);
+                    updateSidebar(player);
                 }
 
                 sender.sendMessage(color(getConfig().getString("messages.reload", "&aPrzeładowano konfigurację rang.")));
@@ -137,97 +131,83 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
         }
     }
 
-    private void startBossBarTask() {
-        long refreshTicks = getConfig().getLong("bossbar.refresh-ticks", 20L);
+    private void startSidebarTask() {
+        long refreshTicks = getConfig().getLong("sidebar.refresh-ticks", 20L);
 
-        if (refreshTicks < 5L) {
+        if (refreshTicks < 10L) {
             refreshTicks = 20L;
         }
 
         Bukkit.getScheduler().runTaskTimer(this, () -> {
-            if (!getConfig().getBoolean("bossbar.enabled", true)) {
-                removeAllBossBars();
+            if (!getConfig().getBoolean("sidebar.enabled", true)) {
                 return;
             }
 
             for (Player player : Bukkit.getOnlinePlayers()) {
-                updateBossBar(player);
+                updateSidebar(player);
             }
         }, 20L, refreshTicks);
     }
 
-    private void updateBossBar(Player player) {
-        if (!getConfig().getBoolean("bossbar.enabled", true)) {
-            removeBossBar(player);
+    private void updateSidebar(Player player) {
+        if (!getConfig().getBoolean("sidebar.enabled", true)) {
+            return;
+        }
+
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if (manager == null) {
             return;
         }
 
         String rank = getRank(player.getName());
-        String titleFormat = getConfig().getString("bossbar.title", "&6👤 &f%player% &8| &c👑 &f%display%");
-        String title = color(applyPlaceholders(titleFormat, player, rank));
 
-        BarColor color = parseBarColor(getConfig().getString("bossbar.color", "PURPLE"));
-        BarStyle style = parseBarStyle(getConfig().getString("bossbar.style", "SOLID"));
-        double progress = getConfig().getDouble("bossbar.progress", 1.0D);
+        Scoreboard board = manager.getNewScoreboard();
+        String title = getConfig().getString("sidebar.title", "&f&lMSurvival");
+        Objective objective = board.registerNewObjective("msranks", "dummy", color(title));
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        if (progress < 0.0D) {
-            progress = 0.0D;
+        int online = Bukkit.getOnlinePlayers().size();
+        int ping = player.getPing();
+
+        int score = getConfig().getStringList("sidebar.lines").size();
+        Set<String> usedLines = new HashSet<>();
+
+        for (String rawLine : getConfig().getStringList("sidebar.lines")) {
+            String line = rawLine
+                    .replace("%player%", player.getName())
+                    .replace("%display%", getDisplay(rank))
+                    .replace("%prefix%", getPrefix(rank))
+                    .replace("%rank%", rank)
+                    .replace("%online%", String.valueOf(online))
+                    .replace("%ping%", String.valueOf(ping));
+
+            String colored = color(line);
+            colored = makeUnique(colored, usedLines);
+
+            objective.getScore(colored).setScore(score);
+            score--;
         }
 
-        if (progress > 1.0D) {
-            progress = 1.0D;
-        }
-
-        BossBar bar = bossBars.get(player.getUniqueId());
-
-        if (bar == null) {
-            bar = Bukkit.createBossBar(title, color, style);
-            bar.addPlayer(player);
-            bossBars.put(player.getUniqueId(), bar);
-        }
-
-        bar.setTitle(title);
-        bar.setColor(color);
-        bar.setStyle(style);
-        bar.setProgress(progress);
-
-        if (!bar.getPlayers().contains(player)) {
-            bar.addPlayer(player);
-        }
-
-        bar.setVisible(true);
+        player.setScoreboard(board);
     }
 
-    private void removeBossBar(Player player) {
-        BossBar bar = bossBars.remove(player.getUniqueId());
-
-        if (bar != null) {
-            bar.removeAll();
-        }
-    }
-
-    private void removeAllBossBars() {
-        for (BossBar bar : bossBars.values()) {
-            bar.removeAll();
+    private String makeUnique(String line, Set<String> usedLines) {
+        if (!usedLines.contains(line)) {
+            usedLines.add(line);
+            return line;
         }
 
-        bossBars.clear();
-    }
-
-    private BarColor parseBarColor(String value) {
-        try {
-            return BarColor.valueOf(value.toUpperCase(Locale.ROOT));
-        } catch (Exception ignored) {
-            return BarColor.PURPLE;
+        for (ChatColor color : ChatColor.values()) {
+            String candidate = line + color;
+            if (!usedLines.contains(candidate) && candidate.length() <= 40) {
+                usedLines.add(candidate);
+                return candidate;
+            }
         }
-    }
 
-    private BarStyle parseBarStyle(String value) {
-        try {
-            return BarStyle.valueOf(value.toUpperCase(Locale.ROOT));
-        } catch (Exception ignored) {
-            return BarStyle.SOLID;
-        }
+        String fallback = line + usedLines.size();
+        usedLines.add(fallback);
+        return fallback;
     }
 
     @EventHandler
@@ -242,14 +222,14 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
         Bukkit.getScheduler().runTaskLater(this, () -> {
             if (player.isOnline()) {
-                updateBossBar(player);
+                updateSidebar(player);
             }
         }, 20L);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        removeBossBar(event.getPlayer());
+        event.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
     }
 
     @EventHandler
