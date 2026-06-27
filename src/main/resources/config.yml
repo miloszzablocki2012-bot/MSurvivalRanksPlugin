@@ -4,13 +4,23 @@ chat:
   enabled: true
   format: "%prefix% &7%player% &8» &f%message%"
 
-bossbar:
+sidebar:
   enabled: true
   refresh-ticks: 20
-  color: PURPLE
-  style: SOLID
-  progress: 1.0
-  title: "&6👤 &f%player% &8| &c👑 &f%display%"
+  title: "&f&lMSurvival"
+  lines:
+    - "&c|"
+    - "&c| &fNick:"
+    - "&c| &f%player%"
+    - "&c|"
+    - "&c| &fRanga:"
+    - "&c| %display%"
+    - "&c|"
+    - "&c| &fOnline: &a%online%"
+    - "&c| &fPing: &b%ping% ms"
+    - "&c|"
+    - "&c| &fmsurvival.pl"
+    - "&c|"
 
 tablist:
   enabled: true
@@ -50,5 +60,5 @@ messages:
   rank-list: "&7Dostępne rangi: &e%ranks%"
   rank-set: "&aUstawiono rangę %display% &adla gracza &e%player%&a."
   rank-received: "&aOtrzymałeś rangę: %display%"
-  your-rank: "&8┃ &7Gracz: &f%player% &8┃ &7Ranga: %display% &8┃"
+  your-rank: "&7Twoja ranga: %display%"
   reload: "&aPrzeładowano konfigurację rang."
