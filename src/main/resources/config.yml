@@ -1,1 +1,50 @@
-# Wklej tutaj config.yml
+default-rank: gracz
+
+chat:
+  enabled: true
+  format: "%prefix% &7%player% &8» &f%message%"
+
+actionbar:
+  enabled: true
+  refresh-ticks: 20
+  format: "&8┃ &7Twoja ranga: %display% &8┃"
+
+tablist:
+  enabled: true
+  format: "%prefix% &f%player%"
+
+ranks:
+  gracz:
+    display: "&7&lGRACZ"
+    prefix: "&8[&7GRACZ&8]"
+  vip:
+    display: "&b&lVIP"
+    prefix: "&8[&b&lVIP&8]"
+  youtuber:
+    display: "&c▶ &f&lYOUTUBER"
+    prefix: "&8[&c▶ &f&lYT&8]"
+  tiktoker:
+    display: "&d♫ &f&lTIKTOKER"
+    prefix: "&8[&d♫ &f&lTT&8]"
+  moderator:
+    display: "&2&lMODERATOR"
+    prefix: "&8[&2&lMOD&8]"
+  zastepcaadmina:
+    display: "&6&lZASTĘPCA ADMINA"
+    prefix: "&8[&6&lZ-ADMIN&8]"
+  admin:
+    display: "&c&lADMIN"
+    prefix: "&8[&c&lADMIN&8]"
+  wlasciciel:
+    display: "&4&lWŁAŚCICIEL"
+    prefix: "&8[&4&lOWNER&8]"
+
+messages:
+  no-permission: "&cNie masz uprawnień."
+  usage-setrank: "&cUżycie: &e/setrank <gracz> <ranga>"
+  player-not-found: "&cNie znaleziono gracza online."
+  rank-not-found: "&cNie ma takiej rangi."
+  rank-set: "&aUstawiono rangę %prefix% &adla gracza &e%player%&a."
+  rank-received: "&aOtrzymałeś rangę: %prefix%"
+  your-rank: "&8┃ &7Twoja ranga: %display% &8┃"
+  reload: "&aPrzeładowano konfigurację rang."# Wklej tutaj config.yml
