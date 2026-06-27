@@ -4,61 +4,80 @@ chat:
   enabled: true
   format: "%prefix% &7%player% &8» &f%message%"
 
-sidebar:
-  enabled: true
-  refresh-ticks: 20
-  title: "&f&lMSurvival"
-  lines:
-    - "&c|"
-    - "&c| &fNick:"
-    - "&c| &f%player%"
-    - "&c|"
-    - "&c| &fRanga:"
-    - "&c| %display%"
-    - "&c|"
-    - "&c| &fOnline: &a%online%"
-    - "&c| &fPing: &b%ping% ms"
-    - "&c|"
-    - "&c| &fmsurvival.pl"
-    - "&c|"
-
 tablist:
   enabled: true
   format: "%prefix% &f%player%"
 
+sidebar:
+  enabled: true
+  refresh-ticks: 20
+  title: "&6&lMSURVIVAL"
+
+  lines:
+    - "&8&m━━━━━━━━━━━━━━━━"
+    - "&7Nick:"
+    - "&f%player%"
+    - " "
+    - "&7Ranga:"
+    - "%display%"
+    - "  "
+    - "&7Online:"
+    - "&a%online%"
+    - "   "
+    - "&7Ping:"
+    - "&b%ping% ms"
+    - "    "
+    - "&8&m━━━━━━━━━━━━━━━━"
+    - "&6&lmsurvival.pl"
+
 ranks:
   gracz:
     display: "&7&lGRACZ"
-    prefix: "&8[&7GRACZ&8]"
+    prefix: "&8[&7&lGRACZ&8]"
+
   vip:
     display: "&b&lVIP"
     prefix: "&8[&b&lVIP&8]"
+
   youtuber:
-    display: "&c▶ &f&lYOUTUBER"
+    display: "&c&lYOUTUBER"
     prefix: "&8[&c▶ &f&lYT&8]"
+
   tiktoker:
-    display: "&d♫ &f&lTIKTOKER"
+    display: "&d&lTIKTOKER"
     prefix: "&8[&d♫ &f&lTT&8]"
+
   moderator:
     display: "&2&lMODERATOR"
     prefix: "&8[&2&lMOD&8]"
+
   zastepcaadmina:
     display: "&6&lZASTĘPCA ADMINA"
     prefix: "&8[&6&lZ-ADMIN&8]"
+
   admin:
     display: "&c&lADMIN"
     prefix: "&8[&c&lADMIN&8]"
+
   wlasciciel:
     display: "&4&lWŁAŚCICIEL"
     prefix: "&8[&4&lOWNER&8]"
 
 messages:
   no-permission: "&cNie masz uprawnień."
+
   usage-setrank: "&cUżycie: &e/setrank <gracz> <ranga>"
-  player-not-found: "&cNie znaleziono gracza online."
+
+  player-not-found: "&cNie znaleziono gracza."
+
   rank-not-found: "&cNie ma takiej rangi."
+
   rank-list: "&7Dostępne rangi: &e%ranks%"
+
   rank-set: "&aUstawiono rangę %display% &adla gracza &e%player%&a."
+
   rank-received: "&aOtrzymałeś rangę: %display%"
+
   your-rank: "&7Twoja ranga: %display%"
-  reload: "&aPrzeładowano konfigurację rang."
+
+  reload: "&aPrzeładowano konfigurację."
