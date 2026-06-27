@@ -8,6 +8,9 @@ commands:
   setrank:
     description: Ustawia rangę gracza
     usage: /setrank <gracz> <ranga>
+  setranktemp:
+    description: Ustawia rangę czasową
+    usage: /setranktemp <gracz> <ranga> <czas>
   rank:
     description: Pokazuje twoją rangę
     usage: /rank
@@ -19,7 +22,3 @@ permissions:
   msurvivalranks.admin:
     description: Dostęp do zarządzania rangami
     default: op
-    setranktemp:
-    description: Ustawia range czasowa
-    usage: /setranktemp <gracz> <ranga> <czas>
-
