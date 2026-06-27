@@ -15,20 +15,20 @@ sidebar:
 
   lines:
     - "&8&m━━━━━━━━━━━━━━━━"
-    - "&7Nick:"
+    - "&eNick"
     - "&f%player%"
     - " "
-    - "&7Ranga:"
+    - "&6Ranga"
     - "%display%"
     - "  "
-    - "&7Online:"
+    - "&eOnline"
     - "&a%online%"
     - "   "
-    - "&7Ping:"
+    - "&ePing"
     - "&b%ping% ms"
     - "    "
     - "&8&m━━━━━━━━━━━━━━━━"
-    - "&6&lmsurvival.pl"
+    - "&6&lmsurvival.6mc.pl"
 
 ranks:
   gracz:
