@@ -7,7 +7,7 @@ chat:
 actionbar:
   enabled: true
   refresh-ticks: 20
-  format: "&8┃ &7Twoja ranga: %display% &8┃"
+  format: "&8┃ &6✦ &7Gracz: &f%player% &8┃ &6✦ &7Ranga: %display% &8┃"
 
 tablist:
   enabled: true
@@ -44,7 +44,8 @@ messages:
   usage-setrank: "&cUżycie: &e/setrank <gracz> <ranga>"
   player-not-found: "&cNie znaleziono gracza online."
   rank-not-found: "&cNie ma takiej rangi."
-  rank-set: "&aUstawiono rangę %prefix% &adla gracza &e%player%&a."
-  rank-received: "&aOtrzymałeś rangę: %prefix%"
-  your-rank: "&8┃ &7Twoja ranga: %display% &8┃"
-  reload: "&aPrzeładowano konfigurację rang."# Wklej tutaj config.yml
+  rank-list: "&7Dostępne rangi: &e%ranks%"
+  rank-set: "&aUstawiono rangę %display% &adla gracza &e%player%&a."
+  rank-received: "&aOtrzymałeś rangę: %display%"
+  your-rank: "&8┃ &7Gracz: &f%player% &8┃ &7Ranga: %display% &8┃"
+  reload: "&aPrzeładowano konfigurację rang."
