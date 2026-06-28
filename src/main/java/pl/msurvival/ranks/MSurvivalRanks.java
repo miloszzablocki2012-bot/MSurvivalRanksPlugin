@@ -44,6 +44,10 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        if (Bukkit.getScoreboardManager() == null) {
+            return;
+        }
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         }
@@ -78,7 +82,6 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                 }
 
                 setRank(target.getName(), rank);
-                clearTempRank(target.getName());
                 updatePlayerVisuals(target);
                 updateSidebar(target);
 
@@ -123,7 +126,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                 long durationMillis = parseDurationMillis(args[2]);
 
                 if (durationMillis <= 0) {
-                    sender.sendMessage(color(getConfig().getString("messages.invalid-time", "&cZły czas. Dozwolone: 1h, 6h, 12h, 1d, 3d, 7d, 10d, 15d, 30d, 60d, 90d, 3M, 6M, 12M, 1y, 2y.")));
+                    sender.sendMessage(color(getConfig().getString("messages.invalid-time", "&cPoprawne czasy: &e1h, 6h, 12h, 1d, 3d, 7d, 10d, 15d, 30d, 60d, 90d, 3M, 6M, 12M, 1y, 2y")));
                     return true;
                 }
 
@@ -133,11 +136,13 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                 updatePlayerVisuals(target);
                 updateSidebar(target);
 
-                String msg = getConfig().getString("messages.temp-rank-set", "&aUstawiono rangę czasową %display% &adla &e%player% &ana &e%time%&a.");
-                sender.sendMessage(color(applyPlaceholders(msg, target, rank).replace("%time%", getPrettyTime(args[2]))));
+                String prettyTime = getPrettyTime(args[2]);
 
-                String received = getConfig().getString("messages.temp-rank-received", "&aOtrzymałeś rangę czasową: %display% &ana &e%time%&a.");
-                target.sendMessage(color(applyPlaceholders(received, target, rank).replace("%time%", getPrettyTime(args[2]))));
+                String msg = getConfig().getString("messages.temp-rank-set", "&aUstawiono rangę czasową %display% &adla &e%player% &ana &e%time%&a.");
+                sender.sendMessage(color(applyPlaceholders(msg, target, rank).replace("%time%", prettyTime)));
+
+                String received = getConfig().getString("messages.temp-rank-received", "&aOtrzymałeś rangę czasową: %display% &7(&e%time%&7)");
+                target.sendMessage(color(applyPlaceholders(received, target, rank).replace("%time%", prettyTime)));
 
                 return true;
             });
@@ -155,7 +160,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
                 String rank = getRank(player.getName());
 
-                String msg = getConfig().getString("messages.your-rank", "&7Twoja ranga: %display%");
+                String msg = getConfig().getString("messages.your-rank", "&7Twoja ranga: %display%%expires%");
                 player.sendMessage(color(applyPlaceholders(msg, player, rank)));
                 updateSidebar(player);
                 return true;
@@ -176,6 +181,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                     if (!players.contains("players." + normalize(player.getName()) + ".rank")) {
                         setRank(player.getName(), getDefaultRank());
                     }
+
                     checkExpiredRank(player.getName());
                     updatePlayerVisuals(player);
                     updateSidebar(player);
@@ -239,12 +245,17 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
         int online = Bukkit.getOnlinePlayers().size();
         int ping = player.getPing();
         long expiresAt = getRankExpiresAt(player.getName());
-        String expiresText = expiresAt > 0 ? formatRemaining(expiresAt - System.currentTimeMillis()) : "stała";
+        String expiresText = expiresAt > 0 ? "&eWażna: &f" + formatRemaining(expiresAt - System.currentTimeMillis()) : "";
 
         int score = getConfig().getStringList("sidebar.lines").size();
         Set<String> usedLines = new HashSet<>();
 
         for (String rawLine : getConfig().getStringList("sidebar.lines")) {
+            if (rawLine.contains("%expires%") && expiresText.isEmpty()) {
+                score--;
+                continue;
+            }
+
             String line = rawLine
                     .replace("%player%", player.getName())
                     .replace("%display%", getDisplay(rank))
@@ -270,8 +281,8 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
             return line;
         }
 
-        for (ChatColor color : ChatColor.values()) {
-            String candidate = line + color;
+        for (ChatColor chatColor : ChatColor.values()) {
+            String candidate = line + chatColor;
             if (!usedLines.contains(candidate) && candidate.length() <= 40) {
                 usedLines.add(candidate);
                 return candidate;
@@ -303,6 +314,10 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        if (Bukkit.getScoreboardManager() == null) {
+            return;
+        }
+
         event.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
     }
 
@@ -314,6 +329,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
         Player player = event.getPlayer();
         checkExpiredRank(player.getName());
+
         String rank = getRank(player.getName());
 
         String format = getConfig().getString("chat.format", "%prefix% &7%player% &8» &f%message%");
@@ -339,7 +355,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
         }
 
         long expiresAt = getRankExpiresAt(player.getName());
-        String expiresText = expiresAt > 0 ? formatRemaining(expiresAt - System.currentTimeMillis()) : "stała";
+        String expiresText = expiresAt > 0 ? " &7(Ważna: &e" + formatRemaining(expiresAt - System.currentTimeMillis()) + "&7)" : "";
 
         return text
                 .replace("%prefix%", getPrefix(rank))
@@ -367,6 +383,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
     private void migrateOldPlayersFormat() {
         ConfigurationSection section = players.getConfigurationSection("players");
+
         if (section == null) {
             return;
         }
@@ -409,11 +426,6 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
         String path = "players." + normalize(playerName);
         players.set(path + ".rank", normalize(rank));
         players.set(path + ".expires", expiresAt);
-        savePlayers();
-    }
-
-    private void clearTempRank(String playerName) {
-        players.set("players." + normalize(playerName) + ".expires", 0L);
         savePlayers();
     }
 
@@ -579,6 +591,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
             long years = days / 365L;
             long restDays = days % 365L;
             long months = restDays / 30L;
+
             if (months > 0) return years + "y " + months + "M";
             return years + "y";
         }
@@ -586,11 +599,28 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
         if (days >= 30) {
             long months = days / 30L;
             long restDays = days % 30L;
+
             if (restDays > 0) return months + "M " + restDays + "d";
             return months + "M";
         }
 
-        return days + "d";
+        if (days > 0) {
+            return days + "d";
+        }
+
+        long hours = seconds / 3600L;
+
+        if (hours > 0) {
+            return hours + "h";
+        }
+
+        long minutes = seconds / 60L;
+
+        if (minutes > 0) {
+            return minutes + "m";
+        }
+
+        return seconds + "s";
     }
 
     private String normalize(String text) {
