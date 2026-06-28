@@ -1,3 +1,4 @@
+```yaml
 default-rank: gracz
 
 chat:
@@ -20,6 +21,8 @@ sidebar:
     - " "
     - "&6Ranga"
     - "%display%"
+    - "&6Ważna"
+    - "&e%expires%"
     - "  "
     - "&eOnline"
     - "&a%online%"
@@ -68,6 +71,8 @@ messages:
 
   usage-setrank: "&cUżycie: &e/setrank <gracz> <ranga>"
 
+  usage-setranktemp: "&cUżycie: &e/setranktemp <gracz> <ranga> <czas>"
+
   player-not-found: "&cNie znaleziono gracza."
 
   rank-not-found: "&cNie ma takiej rangi."
@@ -76,8 +81,18 @@ messages:
 
   rank-set: "&aUstawiono rangę %display% &adla gracza &e%player%&a."
 
+  temp-rank-set: "&aUstawiono rangę czasową %display% &adla &e%player% &ana &e%time%&a."
+
   rank-received: "&aOtrzymałeś rangę: %display%"
+
+  temp-rank-received: "&aOtrzymałeś rangę czasową: %display% &7(&e%time%&7)"
+
+  temp-rank-expired: "&eTwoja ranga czasowa wygasła."
+
+  invalid-time: "&cPoprawne czasy: &e1h, 6h, 12h, 1d, 3d, 7d, 10d, 15d, 30d, 60d, 90d, 3M, 6M, 12M, 1y, 2y"
 
   your-rank: "&7Twoja ranga: %display%"
 
   reload: "&aPrzeładowano konfigurację."
+```
+
