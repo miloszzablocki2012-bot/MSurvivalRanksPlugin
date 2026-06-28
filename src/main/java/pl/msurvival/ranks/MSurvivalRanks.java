@@ -101,6 +101,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
                 if (args.length != 3) {
                     sender.sendMessage(color(getConfig().getString("messages.usage-setranktemp", "&cUżycie: &e/setranktemp <gracz> <ranga> <czas>")));
+                    sender.sendMessage(color("&7Czasy: &e1h, 6h, 12h, 1d, 3d, 7d, 10d, 15d, 30d, 60d, 90d, 3M, 6M, 12M, 1y, 2y"));
                     return true;
                 }
 
@@ -122,7 +123,7 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                 long durationMillis = parseDurationMillis(args[2]);
 
                 if (durationMillis <= 0) {
-                    sender.sendMessage(color(getConfig().getString("messages.invalid-time", "&cZły czas. Użyj np. 10m, 2h, 7d.")));
+                    sender.sendMessage(color(getConfig().getString("messages.invalid-time", "&cZły czas. Dozwolone: 1h, 6h, 12h, 1d, 3d, 7d, 10d, 15d, 30d, 60d, 90d, 3M, 6M, 12M, 1y, 2y.")));
                     return true;
                 }
 
@@ -133,10 +134,10 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
                 updateSidebar(target);
 
                 String msg = getConfig().getString("messages.temp-rank-set", "&aUstawiono rangę czasową %display% &adla &e%player% &ana &e%time%&a.");
-                sender.sendMessage(color(applyPlaceholders(msg, target, rank).replace("%time%", args[2])));
+                sender.sendMessage(color(applyPlaceholders(msg, target, rank).replace("%time%", getPrettyTime(args[2]))));
 
                 String received = getConfig().getString("messages.temp-rank-received", "&aOtrzymałeś rangę czasową: %display% &ana &e%time%&a.");
-                target.sendMessage(color(applyPlaceholders(received, target, rank).replace("%time%", args[2])));
+                target.sendMessage(color(applyPlaceholders(received, target, rank).replace("%time%", getPrettyTime(args[2]))));
 
                 return true;
             });
@@ -489,8 +490,9 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
             return -1L;
         }
 
-        String numberPart = input.substring(0, input.length() - 1);
-        char unit = Character.toLowerCase(input.charAt(input.length() - 1));
+        String value = input.trim();
+        char unit = value.charAt(value.length() - 1);
+        String numberPart = value.substring(0, value.length() - 1);
 
         long amount;
 
@@ -504,20 +506,65 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
             return -1L;
         }
 
-        switch (unit) {
-            case 's':
-                return amount * 1000L;
-            case 'm':
-                return amount * 60L * 1000L;
-            case 'h':
-                return amount * 60L * 60L * 1000L;
-            case 'd':
-                return amount * 24L * 60L * 60L * 1000L;
-            case 'w':
-                return amount * 7L * 24L * 60L * 60L * 1000L;
-            default:
-                return -1L;
+        if (unit == 'h') {
+            return amount * 60L * 60L * 1000L;
         }
+
+        if (unit == 'd') {
+            return amount * 24L * 60L * 60L * 1000L;
+        }
+
+        if (unit == 'M') {
+            return amount * 30L * 24L * 60L * 60L * 1000L;
+        }
+
+        if (unit == 'y') {
+            return amount * 365L * 24L * 60L * 60L * 1000L;
+        }
+
+        return -1L;
+    }
+
+    private String getPrettyTime(String input) {
+        if (input == null || input.length() < 2) {
+            return input;
+        }
+
+        char unit = input.charAt(input.length() - 1);
+        String numberPart = input.substring(0, input.length() - 1);
+
+        long amount;
+
+        try {
+            amount = Long.parseLong(numberPart);
+        } catch (NumberFormatException e) {
+            return input;
+        }
+
+        if (unit == 'h') {
+            if (amount == 1) return "1 godzina";
+            if (amount >= 2 && amount <= 4) return amount + " godziny";
+            return amount + " godzin";
+        }
+
+        if (unit == 'd') {
+            if (amount == 1) return "1 dzień";
+            return amount + " dni";
+        }
+
+        if (unit == 'M') {
+            if (amount == 1) return "1 miesiąc";
+            if (amount >= 2 && amount <= 4) return amount + " miesiące";
+            return amount + " miesięcy";
+        }
+
+        if (unit == 'y') {
+            if (amount == 1) return "1 rok";
+            if (amount >= 2 && amount <= 4) return amount + " lata";
+            return amount + " lat";
+        }
+
+        return input;
     }
 
     private String formatRemaining(long millis) {
@@ -527,24 +574,23 @@ public final class MSurvivalRanks extends JavaPlugin implements Listener {
 
         long seconds = millis / 1000L;
         long days = seconds / 86400L;
-        seconds %= 86400L;
-        long hours = seconds / 3600L;
-        seconds %= 3600L;
-        long minutes = seconds / 60L;
 
-        if (days > 0) {
-            return days + "d " + hours + "h";
+        if (days >= 365) {
+            long years = days / 365L;
+            long restDays = days % 365L;
+            long months = restDays / 30L;
+            if (months > 0) return years + "y " + months + "M";
+            return years + "y";
         }
 
-        if (hours > 0) {
-            return hours + "h " + minutes + "m";
+        if (days >= 30) {
+            long months = days / 30L;
+            long restDays = days % 30L;
+            if (restDays > 0) return months + "M " + restDays + "d";
+            return months + "M";
         }
 
-        if (minutes > 0) {
-            return minutes + "m";
-        }
-
-        return seconds + "s";
+        return days + "d";
     }
 
     private String normalize(String text) {
