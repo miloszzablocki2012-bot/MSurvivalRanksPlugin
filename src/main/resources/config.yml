@@ -20,8 +20,7 @@ sidebar:
     - " "
     - "&6Ranga"
     - "%display%"
-    - "&6Ważna"
-    - "&e%expires%"
+    - "%expires%"
     - "  "
     - "&eOnline"
     - "&a%online%"
@@ -72,7 +71,7 @@ messages:
 
   usage-setranktemp: "&cUżycie: &e/setranktemp <gracz> <ranga> <czas>"
 
-  player-not-found: "&cNie znaleziono gracza."
+  player-not-found: "&cNie znaleziono gracza online."
 
   rank-not-found: "&cNie ma takiej rangi."
 
@@ -90,8 +89,6 @@ messages:
 
   invalid-time: "&cPoprawne czasy: &e1h, 6h, 12h, 1d, 3d, 7d, 10d, 15d, 30d, 60d, 90d, 3M, 6M, 12M, 1y, 2y"
 
-  your-rank: "&7Twoja ranga: %display%"
+  your-rank: "&7Twoja ranga: %display%%expires%"
 
   reload: "&aPrzeładowano konfigurację."
-
-
